@@ -4,7 +4,6 @@ import aiosqlite  # Changed: sqlite3 → aiosqlite
 import tempfile
 # Use temporary directory which should be writable
 
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 DB_PATH = os.path.join(BASE_DIR, "expenses.db")
@@ -101,11 +100,33 @@ async def summarize(start_date, end_date, category=None):  # Changed: added asyn
     except Exception as e:
         return {"status": "error", "message": f"Error summarizing expenses: {str(e)}"}
 
-@mcp.resource("expense://categories", mime_type="application/json")
+@mcp.resource("expense:///categories", mime_type="application/json")  # Changed: expense:// → expense:///
 def categories():
-    # Read fresh each time so you can edit the file without restarting
-    with open(CATEGORIES_PATH, "r", encoding="utf-8") as f:
-        return f.read()
+    try:
+        # Provide default categories if file doesn't exist
+        default_categories = {
+            "categories": [
+                "Food & Dining",
+                "Transportation",
+                "Shopping",
+                "Entertainment",
+                "Bills & Utilities",
+                "Healthcare",
+                "Travel",
+                "Education",
+                "Business",
+                "Other"
+            ]
+        }
+        
+        try:
+            with open(CATEGORIES_PATH, "r", encoding="utf-8") as f:
+                return f.read()
+        except FileNotFoundError:
+            import json
+            return json.dumps(default_categories, indent=2)
+    except Exception as e:
+        return f'{{"error": "Could not load categories: {str(e)}"}}'
 
 # Start the server
 if __name__ == "__main__":
