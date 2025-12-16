@@ -172,5 +172,6 @@ def categories():
 
 # Start the server
 if __name__ == "__main__":
-    mcp.run(transport="http", host="0.0.0.0", port=8000)
-    # mcp.run()
+    # Use port 8080 for cloud deployment (Lambda Web Adapter default), or 8000 for local
+    port = int(os.environ.get("PORT", "8080"))
+    mcp.run(transport="http", host="0.0.0.0", port=port)
