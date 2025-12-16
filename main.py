@@ -7,7 +7,15 @@ from datetime import date as date_class
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DB_PATH = os.path.join(BASE_DIR, "expenses.db")
+# Use /tmp for database in cloud/serverless environments (Lambda, etc.)
+# Check if we're in a cloud environment or if base dir is not writable
+if os.environ.get("AWS_LAMBDA_FUNCTION_NAME") or os.environ.get("FASTMCP_CLOUD_URL"):
+    # Cloud/serverless environment - use /tmp which is writable
+    DB_PATH = "/tmp/expenses.db"
+else:
+    # Local development - use base directory
+    DB_PATH = os.path.join(BASE_DIR, "expenses.db")
+
 CATEGORIES_PATH = os.path.join(os.path.dirname(__file__), "categories.json")
 
 print(f"Database path: {DB_PATH}")
